@@ -1,0 +1,7 @@
+{
+    "env": {
+        "DB_USER": "menu",
+        "DB_PASSWORD": "pURXD1rSpgtlgaUH",
+        "DB_NAME_DEV": "myFirstDatabase"
+    }
+}

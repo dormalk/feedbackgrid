@@ -1,0 +1,31 @@
+.error-snack{
+    width: 100vw;
+    background-color: red;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+    padding: 10px;
+    font-family: Roboto-Light;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(100%);
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.error-snack.show{
+    transform: translateY(0);
+    opacity: 0.9;
+}
+
+.error-snack__close{
+    cursor: pointer;
+    float: right;
+    background-color: unset;
+    border: 0px;
+    color: white;
+    position: absolute;
+}

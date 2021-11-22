@@ -1,0 +1,27 @@
+.reaction{
+    align-items: center;
+    display: inline-flex;
+    cursor: pointer;
+    margin-right: 8px;
+}
+.reaction img{
+    height: 1rem;
+    width: 1rem;
+    transition: all .2s ease-in-out;
+}
+
+.reaction img[alt="dislike"],.reaction img[alt="like"]{
+    height: 0.85rem;
+    width: 0.85rem;
+}
+
+.reaction span{
+    margin-right: 0.1rem;
+    color: #aaa;
+    font-family: Roboto-Light;
+    font-size:small;
+}
+
+.reaction:hover img{
+    transform: scale(1.2);
+}

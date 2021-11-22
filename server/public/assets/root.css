@@ -1,0 +1,39 @@
+@font-face{
+    font-family: Roboto-Bold;
+    src: url(./fonts/Roboto-Bold.ttf);
+}
+
+@font-face{
+    font-family: Roboto-Regular;
+    src: url(./fonts/Roboto-Regular.ttf);
+}
+
+@font-face{
+    font-family: Roboto-Light;
+    src: url(./fonts/Roboto-Light.ttf);
+}
+
+:root{
+    --dark-purple: #4f0458f5;
+    --dark-blue: #000547;
+}
+
+body{
+    margin: 0;
+}
+
+
+html,body,#root{
+    height: 100%;
+    overflow: hidden;
+}
+
+
+#root{
+    display: flex;
+    flex-direction: column;
+}
+
+#error-hook{
+    overflow: hidden;
+}

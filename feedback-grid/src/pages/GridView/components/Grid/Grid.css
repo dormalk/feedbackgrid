@@ -1,0 +1,49 @@
+.grid{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    height: 100%;
+}
+
+.grid > div{
+    flex-basis: calc(50% - 0.1rem - 2rem);  
+    overflow: hidden;
+}
+
+.grid > div:nth-child(1){
+    border-right: 0.25px solid #ddd;
+    border-bottom: 0.25px solid #ddd;
+}
+
+.grid > div:nth-child(2){
+    border-left: 0.25px solid #ddd;
+    border-bottom: 0.25px solid #ddd;
+}
+
+.grid > div:nth-child(3){
+    border-right: 0.25px solid #ddd;
+    border-top: 0.25px solid #ddd;
+}
+
+.grid > div:nth-child(4){
+    border-left: 0.25px solid #ddd;
+    border-top: 0.25px solid #ddd;
+}
+
+
+@media only screen and (max-width: 480px){
+    .grid{
+        overflow: hidden;
+        overflow-x: scroll;    
+        flex-wrap: unset;
+    }
+    
+    .grid > div{
+        border-right: 1px solid #ddd !important;
+        border-bottom: 0px !important;
+        flex-basis: 1 !important;
+        width: calc(100vw - 2rem);
+        max-height: unset;
+        flex: none;
+    }
+}

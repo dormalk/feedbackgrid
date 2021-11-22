@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@500&display=swap');
+.card{
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.5rem;
+    margin: 0.5rem 0.25rem;
+}
+
+.card hr{
+    margin: 0.2rem 0;
+    opacity: 0.4
+}
+
+.card-footer small{
+    font-size: 0.55rem;
+    font-family: Roboto-Light;
+    color: #8a8a8a;
+}
+
+.card-body{
+    font-family: Roboto-Regular;
+    font-size: 0.9rem;
+    color: var(--dark-blue)
+}
+
+.card-body.rtl{
+    direction: rtl;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.card-remove{
+    font-family: Roboto-Regular;
+    font-size: 0.8rem;
+    position: absolute;
+    right: 1rem;
+    cursor: pointer;
+    color: var(--dark-blue);
+}
+
+
+@media screen and (max-width: 480px){
+
+    .card-body, 
+    .card-remove,
+    .card-footer .reaction > span{
+        font-size: 1.2rem;
+    }
+    .card-footer .reaction{
+        margin-right: 1.2rem;
+    }
+
+    .card-footer .reaction img{
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+    .card{
+        margin: 0.8rem  0px;
+    }
+    .card hr{
+        margin: 0.5rem  0px;
+    }
+}
