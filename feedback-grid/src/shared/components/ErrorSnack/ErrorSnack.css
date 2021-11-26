@@ -8,7 +8,7 @@
     z-index: 9999;
     padding: 10px;
     font-family: Roboto-Light;
-    display: flex;
+    display: fleax;
     justify-content: center;
     align-items: center;
     transform: translateY(100%);

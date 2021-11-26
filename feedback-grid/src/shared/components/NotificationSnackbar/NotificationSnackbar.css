@@ -1,0 +1,45 @@
+.notification-snack{
+    width: 20rem;
+    background-color: rgba(0,0,0,0.5);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    z-index: 9999;
+    padding: 10px;
+    font-family: Roboto-Light;
+    display: fleax;
+    justify-content: center;
+    align-items: center;
+    transform: translate(-50%,-100%);
+    transition: all 0.3s ease-in-out;
+    opacity: 0;
+    border-radius: 0.5rem;
+}
+
+.notification-snack.show{
+    transform: translate(-50%,0.5rem);
+    opacity: 0.9;
+}
+
+.notification-snack__close{
+    cursor: pointer;
+    float: right;
+    background-color: unset;
+    border: 0px;
+    color: white;
+    position: absolute;
+}
+
+
+@media screen and (max-width: 768px) {
+    .notification-snack{
+        top: unset;
+        bottom: 0;
+        transform: translate(-50%,100%);
+        opacity: 0.9;
+    }
+    .notification-snack.show{
+        transform: translate(-50%,-0.5rem);
+    }
+}
