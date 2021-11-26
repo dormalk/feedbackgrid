@@ -9,7 +9,7 @@ const Feedback = ({value, reactions,onReaction,createdBy, onDelete}) => {
     const handleReaction = useCallback((reaction) => {
         if(myVote !== ''){
             reactions[myVote]--
-        }        
+        }      
         reactions[reaction]++;
         setMyVote(reaction);
         onReaction(reactions)

@@ -2,8 +2,17 @@ import React,{useRef} from "react";
 import AddInput from "../AddInput/AddInput";
 import Card from "../Feedback/Feedback";
 import './Col.css'
-import {getMyUid} from "../../../../helpers/uid";
+import {getMyUid, generateUid} from "../../../../helpers/uid";
 const iconPath = process.env.PUBLIC_URL + '/assets/icons/';
+
+
+const calcSumOfReactions = reactions => {
+    let sum = 0;
+    for(let key in reactions){
+        sum += reactions[key];
+    }
+    return sum;
+}
 
 const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
     const bodyRef = useRef(null);
@@ -12,6 +21,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
         if(value === '') return;
         const createdItem = {
             value,
+            id: generateUid(),
             createBy: getMyUid(),
             reactions: {
                 evils: 0,
@@ -27,16 +37,30 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
         onUpdate(updatedItems);
     }
 
-    const handleReactions = (reaction,index) => {
+    const handleReactions = (reactions,id) => {
+        const index = feedbacks.findIndex(item => item.id === id);
         const newItems = [...feedbacks];
-        newItems[index].reactions[reaction] = newItems[index].reactions[reaction] + 1;
+        newItems[index].reactions = reactions;
         onUpdate(newItems);
     }
 
-    const handleDelete = (index) => {
+    const handleDelete = (id) => {
         const newItems = [...feedbacks];
+        const index = newItems.findIndex(item => item.id === id);
         newItems.splice(index,1);
         onUpdate(newItems);
+    }
+
+    const buildFeedbacks = () => {
+        return feedbacks.sort((a,b) => calcSumOfReactions(a.reactions) < calcSumOfReactions(b.reactions) ? 1 : -1)
+                        .map((item,index) =>
+                            <Card   value={item.value}
+                                    key={item.id}
+                                    onDelete={() => handleDelete(item.id)}
+                                    createdBy={item.createBy}
+                                    reactions={item.reactions}
+                                    onReaction={(value) => handleReactions(value,item.id)}/>
+        )
     }
     
     return <div className="col" style={style}>
@@ -45,12 +69,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
             <div className="title">{title}</div>
         </div>
         <div className="body" ref={bodyRef}>
-            {feedbacks.map((item, index) => <Card   value={item.value}
-                                                    key={index}
-                                                    onDelete={() => handleDelete(index)}
-                                                    createdBy={item.createBy}
-                                                    reactions={item.reactions}
-                                                    onReaction={(value) => handleReactions(value,index)}/>)}
+            {buildFeedbacks()}
         </div>
         <div className="footer">
             <AddInput className="add-input" onNew={handleNewItem}/>
