@@ -16,20 +16,35 @@ header{
     cursor: pointer;
 }
 
-header > .room{
-    font-family: Roboto-Bold;
-    color: var(--dark-purple);
+
+
+header > .room > img{
+    opacity: 1;
+    height: 1.3rem;
+    cursor: pointer;
+
 }
 
-header > .room > span{
-    font-family: Roboto-Bold;
-    color: var(--dark-blue);
-    font-size: 1.2rem;
+header .room{
+    display: flex;
+    flex-direction: row;
+}
+
+header .room > .viewers{
     margin-left: 0.5rem;
-    background: #eee;
-    padding: 0.2rem 1rem;
-    border-radius: 1rem;
-    opacity: 0.9;
+    font-family: Roboto-Regular;
+    color: white;
+    background-color: var(--dark-purple);
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    padding: 3.8px;
+    font-size: 0.7rem;
+    text-align: center;
+}
+
+header > .room > img:active{
+    opacity: 0.6;
 }
 
 @media only screen and (max-width: 600px){
@@ -47,6 +62,7 @@ header > .room > span{
         color: var(--dark-blue);
         font-size: 0.9rem;
         padding: 0.2rem 0.5rem;
+
     }
     
 }

@@ -31,6 +31,7 @@
 }
 
 
+
 @media only screen and (max-width: 480px){
     .grid{
         overflow: hidden;
@@ -47,3 +48,5 @@
         flex: none;
     }
 }
+
+

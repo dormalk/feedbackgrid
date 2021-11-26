@@ -5,7 +5,7 @@ import './Col.css'
 import {getMyUid} from "../../../../helpers/uid";
 const iconPath = process.env.PUBLIC_URL + '/assets/icons/';
 
-const Col = ({title, icon, onUpdate,feedbacks = []}) => {
+const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
     const bodyRef = useRef(null);
 
     const handleNewItem = (value) => {
@@ -39,23 +39,25 @@ const Col = ({title, icon, onUpdate,feedbacks = []}) => {
         onUpdate(newItems);
     }
     
-    return <div className="col">
+    return <div className="col" style={style}>
         <div className="top">
             <img src={`${iconPath}${icon}.png`} alt="" className="icon"/>
             <div className="title">{title}</div>
         </div>
         <div className="body" ref={bodyRef}>
             {feedbacks.map((item, index) => <Card   value={item.value}
-                                                key={index}
-                                                onDelete={() => handleDelete(index)}
-                                                createdBy={item.createBy}
-                                                reactions={item.reactions}
-                                                onReaction={(value) => handleReactions(value,index)}/>)}
+                                                    key={index}
+                                                    onDelete={() => handleDelete(index)}
+                                                    createdBy={item.createBy}
+                                                    reactions={item.reactions}
+                                                    onReaction={(value) => handleReactions(value,index)}/>)}
         </div>
         <div className="footer">
             <AddInput className="add-input" onNew={handleNewItem}/>
         </div>
     </div>
 };
+
+
 
 export default Col;
