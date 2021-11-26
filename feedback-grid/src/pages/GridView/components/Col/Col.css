@@ -52,7 +52,6 @@
     background: var(--dark-purple); 
 }
 
-
 @media screen and (max-width: 480px) {
     .col .title{
         font-size: 1.2rem
@@ -66,4 +65,5 @@
     .col{
         height: unset;
     }   
+
 }

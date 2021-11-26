@@ -6,6 +6,9 @@ const http = require("http");
 const socketIo = require("socket.io");
 const path = require('path');
 const app = express();
+const {Users} = require('./models/users.js');
+var users = new Users();
+
 
 app.use(bodyParser.json());
 
@@ -20,21 +23,33 @@ app.use((req,res,next)=>{
 })
 
 const server = http.createServer(app);
-const io = socketIo(server,{ origins: '*:*'});
+const io = socketIo(server,{ cors: {origin: '*'} });
 io.on('connection', socket => {
-    socket.on('joinRoom', (roomId) => {
-        if(socket.rooms.has(roomId)){
-            io.removeAllListeners();
-        } else {
-            socket.join(roomId)
+    console.log('New user connected');
+
+    socket.on('join', (params) => {
+        socket.join(params.room);
+        users.removeUser(socket.id);
+        users.addUser(socket.id, params.room);
+
+        const usersList = users.getUserList(params.room);
+        io.to(params.room).emit('usersCount', usersList.length);
+    })
+
+    socket.on('updateRequest', () => {
+        var user = users.getUser(socket.id);
+        if(user){
+            socket.broadcast.to(user.room).emit('updateTable');
         }
     })
 
-    socket.on('fetchGridRequest', (roomId) => {
-        socket.to(roomId).emit('fetchGrid',socket.id);            
-    })
-
     socket.on('disconnect', () => {
+        var user = users.removeUser(socket.id);
+
+        if(user){
+            const usersList = users.getUserList(user.room);
+            io.to(user.room).emit('usersCount', usersList.length);
+        }
     });
 });
 

@@ -10,6 +10,9 @@ const useGrid = (gid) => {
     const [gridCols, setGridCols] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState();
+    const [userCounter, setUserCounter] = useState(0);
+
+
     const mode = new URLSearchParams(useLocation().search).get('mode');
     let navigate = useNavigate();
     const fetchGrid = useCallback((gid) => {
@@ -29,11 +32,14 @@ const useGrid = (gid) => {
         if(gid !== null) {
             setGridId(gid)
             fetchGrid(gid);
-            socket.emit('joinRoom', gid);
+            socket.emit('join', {room: gid});
     
-            socket.on("fetchGrid", requestedSocket => {
-                if(socket.id === requestedSocket) return;
+            socket.on("updateTable", _ => {
                 fetchGrid(gid);
+            });
+
+            socket.on("usersCount", count => {
+                setUserCounter(count);
             });
         } else {
             updateErrorMessage("Grid not found");
@@ -70,8 +76,8 @@ const useGrid = (gid) => {
                     'Content-Type': 'application/json'
                 }
             })
-            .then(res => {
-                socket.emit('fetchGridRequest', gridId);
+            .then(_ => {
+                socket.emit('updateRequest');
             })
             .catch(err => console.log(err))
         }
@@ -85,7 +91,7 @@ const useGrid = (gid) => {
         },3000)
     }
 
-    return {isLoading, findCol, onColUpdate, errorMessage}
+    return {isLoading, findCol, onColUpdate, errorMessage,userCounter}
 }
 
 

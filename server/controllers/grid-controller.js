@@ -73,9 +73,14 @@ const setGridById = async (req, res, next) => {
         const error = new HttpError('Could not update grid', 404);
         return next(error);
     }
-
-    gridToUpdate.cols = grid.cols;
-    gridToUpdate.save();
+    try{
+        gridToUpdate.cols = grid.cols;
+        gridToUpdate.update();
+    }catch(err){
+        console.log(err);
+        const error = new HttpError('Could not update grid', 500);
+        return next(error);
+    }
     res.status(200).json({grid: gridToUpdate.toObject({getters: true})});
 }
 
