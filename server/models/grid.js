@@ -6,6 +6,7 @@ const gridSchema = new Schema({
     cols: [{
         name: { type: String, required: true },
         feedbacks: [{
+            id: { type: String, required: true, unique: true },
             value: { type: String, required: true },
             createBy: { type: String, required: true },
             reactions: {

@@ -26,7 +26,6 @@ const checkGridExists = async (req, res, next) => {
 };
 
 const getGridById = async (req, res, next) => {
-
     const gid = req.params.gid;
     let grid;
     try{
@@ -61,6 +60,8 @@ const getGridById = async (req, res, next) => {
 const setGridById = async (req, res, next) => {
     const gid = req.params.gid;
     const {grid} = req.body;
+    console.log('grid',grid)
+    console.log('gid',gid)
     let gridToUpdate;
     try{
         gridToUpdate = await Grid.findOne({gridId: gid});
@@ -75,7 +76,7 @@ const setGridById = async (req, res, next) => {
     }
     try{
         gridToUpdate.cols = grid.cols;
-        gridToUpdate.update();
+        await Grid.updateOne({gridId: gid}, gridToUpdate);
     }catch(err){
         console.log(err);
         const error = new HttpError('Could not update grid', 500);
