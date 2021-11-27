@@ -34,13 +34,13 @@ const CreateGridPage = () => {
                 <Link to={`/gridview/${generateUid()}?mode=new`} className="btn start">
                     START ONLINE FEEDBACK GRID
                 </Link>
-                <div className="or-dlimeter">or</div>
+                {/* <div className="or-dlimeter">or</div>
                 <div className="join-wrapper">
                     <input type="text" className="join-input" onChange={handleInputChange}/>
                     <button href={null} onClick={handleNavigate} className="btn join" disabled={gridId === '' || gridId === undefined}>
                         JOIN NOW
                     </button>
-                </div>
+                </div> */}
 
             </div>
         </div>

@@ -20,7 +20,10 @@ const Header = ({userCounter}) => {
         <header>
             <h1 className="logo">FEEDBACK GRID</h1>
             <div className="room">
-                <img src={`${iconPath}/share.png`} alt="share" onClick={onClickRoomNumber}/>
+                <div className="share-btn" onClick={onClickRoomNumber}>
+                    <span>Get Url to share</span>
+                    <img src={`${iconPath}/share.png`} alt="share" />
+                </div>
                 <div className="viewers">{userCounter}</div>
             </div>
         </header>

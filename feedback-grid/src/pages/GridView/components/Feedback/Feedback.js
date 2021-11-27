@@ -5,17 +5,19 @@ import { getMyUid } from "../../../../helpers/uid";
 import { isRTL } from "../../../../helpers/text";
 
 const Feedback = ({value, reactions,onReaction,createdBy, onDelete, opacityOnHightlight}) => {
-    const [myVote, setMyVote] = React.useState('');
+    const [votes, setVotes] = React.useState({});
     
     const handleReaction = useCallback((reaction) => {
-        if(myVote !== ''){
+        const uid = getMyUid();
+        const myVote = votes[uid];
+        if(!!myVote && myVote !== ''){
             reactions[myVote]--
         }      
         reactions[reaction]++;
-        setMyVote(reaction);
+        setVotes({...votes, [uid]: reaction});
         onReaction(reactions)
 
-    },[onReaction, setMyVote, myVote, reactions])
+    },[onReaction, setVotes, votes, reactions])
 
 
     return <div className="card" style={{opacity: opacityOnHightlight ? '0.6' : '1'}}>

@@ -1,9 +1,11 @@
 export const generateUid = () => {
     return Math.random().toString(36).substr(2, 9);
 }
-
+let myUid;
 export const getMyUid = () => {
-    const myUid = localStorage.getItem('myUid');
+    if(!myUid){
+        myUid = localStorage.getItem('myUid');
+    }
     if (myUid) {
         return myUid;
     } else {

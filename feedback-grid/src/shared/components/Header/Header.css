@@ -16,16 +16,18 @@ header{
     cursor: pointer;
 }
 
-
-
-header > .room > img{
+header .share-btn {
     opacity: 1;
-    height: 1.3rem;
     cursor: pointer;
+}
+
+header .share-btn > img{
+    height: 1.3rem;
 
 }
 
-header .room{
+header .room,
+header .share-btn{
     display: flex;
     flex-direction: row;
 }
@@ -43,8 +45,13 @@ header .room > .viewers{
     text-align: center;
 }
 
-header > .room > img:active{
+header .share-btn:active{
     opacity: 0.6;
+}
+
+header .share-btn > span{
+    font-family: Roboto-Regular;
+    margin-right: 0.2rem;
 }
 
 @media only screen and (max-width: 600px){

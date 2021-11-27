@@ -13,7 +13,6 @@ const calcSumOfReactions = reactions => {
     for(let key in reactions){
         sum += reactions[key];
     }
-    console.log(sum)
     return sum;
 }
 
