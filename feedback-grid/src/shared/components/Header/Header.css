@@ -63,13 +63,9 @@ header .share-btn > span{
         display: flex;
         align-items: center;
     }
-    
-    header > .room > span{
-        font-family: Roboto-Bold;
-        color: var(--dark-blue);
-        font-size: 0.9rem;
-        padding: 0.2rem 0.5rem;
 
+    header .share-btn > span{
+        display: none;
     }
     
 }

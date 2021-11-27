@@ -35,7 +35,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
         if(value === '') return;
         const createdItem = {
             value,
-            id: generateUid(),
+            cid: generateUid(),
             createBy: getMyUid(),
             reactions: {
                 evils: 0,

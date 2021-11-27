@@ -14,10 +14,12 @@ const checkGridExists = async (req, res, next) => {
     try{
         grid = await Grid.findOne({gridId: gid});
     }catch(err){
+        console.error(err)
         const error = new HttpError('Could not find grid', 500);
         return next(error);
     }
     if(!grid){
+        console.error(err)
         const error = new HttpError('Could not find grid', 404);
         return next(error);
     }
@@ -31,6 +33,7 @@ const getGridById = async (req, res, next) => {
     try{
         grid = await Grid.findOne({gridId: gid});
     }catch(err){
+        console.error(err)
         const error = new HttpError('Could not find grid', 500);
         return next(error);
     }
@@ -47,6 +50,7 @@ const getGridById = async (req, res, next) => {
             });
             await grid.save();
         }catch(err){
+            console.error(err)
             const error = new HttpError('Could not create grid', 500);
             return next(error);
         }
@@ -60,8 +64,6 @@ const getGridById = async (req, res, next) => {
 const setGridById = async (req, res, next) => {
     const gid = req.params.gid;
     const {grid} = req.body;
-    console.log('grid',grid)
-    console.log('gid',gid)
     let gridToUpdate;
     try{
         gridToUpdate = await Grid.findOne({gridId: gid});

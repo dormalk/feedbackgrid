@@ -6,7 +6,7 @@ const gridSchema = new Schema({
     cols: [{
         name: { type: String, required: true },
         feedbacks: [{
-            id: { type: String, required: true, unique: true },
+            cid: { type: String, required: true, unique: true },
             value: { type: String, required: true },
             createBy: { type: String, required: true },
             reactions: {
@@ -17,6 +17,10 @@ const gridSchema = new Schema({
             }
         }]
     }]
+}, {
+    timestamps: {
+        createdAt: 'created_at',
+    }
 });
 
 
