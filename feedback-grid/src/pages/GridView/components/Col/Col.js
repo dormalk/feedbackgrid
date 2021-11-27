@@ -1,4 +1,4 @@
-import React,{useRef} from "react";
+import React,{useRef,useState} from "react";
 import AddInput from "../AddInput/AddInput";
 import Card from "../Feedback/Feedback";
 import './Col.css'
@@ -6,16 +6,31 @@ import {getMyUid, generateUid} from "../../../../helpers/uid";
 const iconPath = process.env.PUBLIC_URL + '/assets/icons/';
 
 
+const HIGHTLIGHT_MODE_PRESENT_VALUE = 0.9;
+
 const calcSumOfReactions = reactions => {
     let sum = 0;
     for(let key in reactions){
         sum += reactions[key];
     }
+    console.log(sum)
     return sum;
 }
 
-const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
+const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
     const bodyRef = useRef(null);
+    const [highlightMode,setHighlightMode] = useState(false);
+
+    React.useEffect(() => {
+        let totalReactionsSum = 0;
+        feedbacks.forEach(feedback => totalReactionsSum += calcSumOfReactions(feedback.reactions));
+        const maxReactionsCount = userCounter * feedbacks.length; 
+        if(maxReactionsCount > 0 && totalReactionsSum / maxReactionsCount > HIGHTLIGHT_MODE_PRESENT_VALUE){
+            setHighlightMode(true);
+        } else {
+            setHighlightMode(false);
+        }
+    },[userCounter,feedbacks])
 
     const handleNewItem = (value) => {
         if(value === '') return;
@@ -59,11 +74,12 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}}) => {
                                     onDelete={() => handleDelete(item.id)}
                                     createdBy={item.createBy}
                                     reactions={item.reactions}
+                                    opacityOnHightlight={highlightMode && calcSumOfReactions(item.reactions) === 0}
                                     onReaction={(value) => handleReactions(value,item.id)}/>
         )
     }
     
-    return <div className="col" style={style}>
+    return <div className={`col ${highlightMode ? 'hightlight' : ''}`} style={style}>
         <div className="top">
             <img src={`${iconPath}${icon}.png`} alt="" className="icon"/>
             <div className="title">{title}</div>

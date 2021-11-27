@@ -29,7 +29,7 @@ const ColsData = [
 
 const DELTEA = window.innerWidth / 2;
 
-const Grid = ({isLoading, findCol, onColUpdate,errorMessage}) => {
+const Grid = ({isLoading, findCol, onColUpdate,errorMessage,userCounter}) => {
     const gridRef = useRef(null);
     
     const handleEndTouch = useCallback(event => {
@@ -61,6 +61,7 @@ const Grid = ({isLoading, findCol, onColUpdate,errorMessage}) => {
                             ColsData.map((col,index) => <Col    key={col.id}
                                                                 title={col.title}
                                                                 icon={col.icon}
+                                                                userCounter={userCounter}
                                                                 style={ index === 0 ? 
                                                                         styles.colFirst : 
                                                                         index === ColsData.length - 1 ? 

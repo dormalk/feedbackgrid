@@ -51,6 +51,14 @@
     /* background: #555;  */
     background: var(--dark-purple); 
 }
+.col.hightlight .card:first-child{
+    box-shadow: 0 0px 3px 0 var(--dark-purple), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+
+.col.hightlight .card:nth-child(2){
+    box-shadow: 0 0px 3px 0 var(--dark-blue), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
 
 @media screen and (max-width: 480px) {
     .col .title{

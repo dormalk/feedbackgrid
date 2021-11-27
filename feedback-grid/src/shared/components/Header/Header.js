@@ -10,7 +10,7 @@ const Header = ({userCounter}) => {
 
     const onClickRoomNumber = () => {
         navigator.clipboard.writeText(`${window.location.origin}/gridview/${gid}?mode=join`);
-        setNotificationMessage('Room url copied to clipboard');
+        setNotificationMessage('Room url copied to clipboard, now you can share it with others');
         setTimeout(() => {
             setNotificationMessage(null);
         }, 3000);

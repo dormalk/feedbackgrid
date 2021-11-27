@@ -24,6 +24,7 @@ const GridView = () => {
     return <React.Fragment>
             <Header userCounter={userCounter}/>
             <Grid   isLoading={isLoading} 
+                    userCounter={userCounter}
                     findCol={findCol}
                     onColUpdate={onColUpdate} 
                     errorMessage={errorMessage}
