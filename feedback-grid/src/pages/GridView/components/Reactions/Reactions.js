@@ -5,7 +5,6 @@ const iconPath = process.env.PUBLIC_URL + '/assets/icons/';
 
 const Reactions = ({dislikes,loves,celebrates,evils, onPick}) => {
     return <div className="reactions">
-
         <div className="reaction" onClick={()=>onPick('loves')}>
             <span>{loves}</span>
             <img    src={`${iconPath}heart-color.png`} 
