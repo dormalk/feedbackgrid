@@ -52,7 +52,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
     }
 
     const handleReactions = (reactions,id) => {
-        const index = feedbacks.findIndex(item => item.id === id);
+        const index = feedbacks.findIndex(item => item.cid === id);
         const newItems = [...feedbacks];
         newItems[index].reactions = reactions;
         onUpdate(newItems);
@@ -60,7 +60,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
 
     const handleDelete = (id) => {
         const newItems = [...feedbacks];
-        const index = newItems.findIndex(item => item.id === id);
+        const index = newItems.findIndex(item => item.cid === id);
         newItems.splice(index,1);
         onUpdate(newItems);
     }
@@ -69,12 +69,12 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
         return feedbacks.sort((a,b) => calcSumOfReactions(a.reactions) < calcSumOfReactions(b.reactions) ? 1 : -1)
                         .map((item,index) =>
                             <Card   value={item.value}
-                                    key={item.id}
-                                    onDelete={() => handleDelete(item.id)}
+                                    key={item.cid}
+                                    onDelete={() => handleDelete(item.cid)}
                                     createdBy={item.createBy}
                                     reactions={item.reactions}
                                     opacityOnHightlight={highlightMode && calcSumOfReactions(item.reactions) === 0}
-                                    onReaction={(value) => handleReactions(value,item.id)}/>
+                                    onReaction={(value) => handleReactions(value,item.cid)}/>
         )
     }
     
