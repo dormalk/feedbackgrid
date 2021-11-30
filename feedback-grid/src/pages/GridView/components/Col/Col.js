@@ -67,9 +67,10 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
 
     const buildFeedbacks = () => {
         return feedbacks.sort((a,b) => calcSumOfReactions(b.reactions) - calcSumOfReactions(a.reactions))
-                        .map((item,index) =>
+                        .map(item =>
                             <Card   value={item.value}
                                     key={item.cid}
+                                    cid={item.cid}
                                     onDelete={() => handleDelete(item.cid)}
                                     createdBy={item.createBy}
                                     reactions={item.reactions}
