@@ -42,7 +42,8 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
                 dislikes: 0,
                 loves: 0,
                 celebrates: 0,
-            }
+            },
+            votes:{}
         }
         const updatedItems = feedbacks.concat(createdItem); 
         setTimeout(() => {
@@ -51,10 +52,14 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
         onUpdate(updatedItems);
     }
 
-    const handleReactions = (reactions,id) => {
+    const handleReactions = ({reactions,votes},id) => {
         const index = feedbacks.findIndex(item => item.cid === id);
         const newItems = [...feedbacks];
-        newItems[index].reactions = reactions;
+        newItems[index] = {
+            ...newItems[index],
+            votes,
+            reactions
+        } ;
         onUpdate(newItems);
     }
 
@@ -72,6 +77,7 @@ const Col = ({title, icon, onUpdate,feedbacks = [], style={}, userCounter}) => {
                                     key={item.cid}
                                     cid={item.cid}
                                     onDelete={() => handleDelete(item.cid)}
+                                    votes={item.votes}
                                     createdBy={item.createBy}
                                     reactions={item.reactions}
                                     opacityOnHightlight={highlightMode && calcSumOfReactions(item.reactions) === 0}

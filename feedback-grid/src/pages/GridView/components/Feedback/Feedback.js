@@ -3,21 +3,20 @@ import './Feedback.css'
 import Reactions from "../Reactions/Reactions";
 import { getMyUid } from "../../../../helpers/uid";
 import { isRTL } from "../../../../helpers/text";
-
-let votes = {};
-
-const Feedback = ({value, reactions,onReaction,createdBy, onDelete, opacityOnHightlight, cid}) => {
-    
+const uid = getMyUid();
+const Feedback = ({value, reactions,votes,onReaction,createdBy, onDelete, opacityOnHightlight}) => {
+    console.log(reactions)
+    console.log(votes)
     const handleReaction = useCallback((reaction) => {
-        const myVote = votes[cid];
+        const myVote = votes[uid];
         if(!!myVote && myVote !== ''){
             reactions[myVote]--
-        }      
+        }
+        votes[uid] = reaction;
         reactions[reaction]++;
-        votes = {...votes, [cid]: reaction};
-        onReaction(reactions)
+        onReaction({reactions,votes});
 
-    },[onReaction, reactions, cid])
+    },[onReaction, votes, reactions])
 
 
     return <div className="card" style={{opacity: opacityOnHightlight ? '0.6' : '1'}}>
