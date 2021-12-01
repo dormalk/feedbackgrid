@@ -1,104 +1,52 @@
-const HttpError = require('../models/http-errors');
-const Grid = require('../models/grid');
+const gridManager = require('../models/grid');
 
-const initCol = (colName) => {
-    return {
-        name: colName,
-        feedbacks: []
-    }
-}
 
-const checkGridExists = async (req, res, next) => {
+const checkGridExists = async(req, res, next) => {
     const gid = req.params.gid;
     let grid;
     try{
-        grid = await Grid.findOne({gridId: gid});
+        grid = await gridManager.checkIfGridExists(gid)
     }catch(err){
-        console.error(err)
-        const error = new HttpError('Could not find grid', 500);
-        return next(error);
+        return next(err);
     }
-    if(!grid){
-        console.error(err)
-        const error = new HttpError('Could not find grid', 404);
-        return next(error);
-    }
-
     res.status(200).json({grid: grid.toObject({getters: true})});
 };
 
-const getGridById = async (req, res, next) => {
+const getGridById = (req, res, next) => {
     const gid = req.params.gid;
     let grid;
     try{
-        grid = await Grid.findOne({gridId: gid});
+        grid = gridManager.getGridById(gid);
     }catch(err){
-        console.error(err)
-        const error = new HttpError('Could not find grid', 500);
-        return next(error);
-    }
-    if(!grid){
-        try{
-            grid = new Grid({
-                gridId: gid,
-                cols: [
-                    initCol('things_love'),
-                    initCol('things_dislike'),
-                    initCol('things_improve'),
-                    initCol('things_new'),
-                ]
-            });
-            await grid.save();
-        }catch(err){
-            console.error(err)
-            const error = new HttpError('Could not create grid', 500);
-            return next(error);
-        }
+        console.log(err)
+        return next(err);
     }
 
-    res.status(200).json({grid: grid.toObject({getters: true})});
+    res.status(200).json({grid});
 
 
 }
 
-const setGridById = async (req, res, next) => {
+const setGridById = (req, res, next) => {
     const gid = req.params.gid;
     const {grid} = req.body;
     let gridToUpdate;
     try{
-        gridToUpdate = await Grid.findOne({gridId: gid});
+        gridToUpdate = gridManager.updateGridById(gid, grid);
     }catch(err){
-        const error = new HttpError('Could not update grid', 500);
-        return next(error);
+        return next(err);
     }
 
-    if(!gridToUpdate){
-        const error = new HttpError('Could not update grid', 404);
-        return next(error);
-    }
-    try{
-        gridToUpdate.cols = grid.cols;
-        await Grid.updateOne({gridId: gid}, gridToUpdate);
-    }catch(err){
-        console.log(err);
-        const error = new HttpError('Could not update grid', 500);
-        return next(error);
-    }
-    res.status(200).json({grid: gridToUpdate.toObject({getters: true})});
+    res.status(200).json({grid: gridToUpdate});
 }
 
 const deleteGridById = async (req, res, next) => {
     const gid = req.params.gid;
     let grid;
     try{
-        grid = await await Grid.findOne({gridId: gid});
+        grid = gridManager.deleteGridById(gid);
     }catch(err){
-        const error = new HttpError('Could not delete grid', 500);
-        return next(error);
-    }
-    if(!grid){
-        const error = new HttpError('Could not delete grid', 404);
-        return next(error);
+        return next(err);
     }
     res.status(200).json({message: 'Grid deleted'});
 }
