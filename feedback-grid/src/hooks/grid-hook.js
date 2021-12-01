@@ -19,6 +19,7 @@ const useGrid = (gid) => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}`)
         .then(res => res.json())
         .then(res => {
+            console.log(res.grid.cols);
             setGridCols(res.grid.cols)
         })
         .catch(err => {
@@ -61,7 +62,8 @@ const useGrid = (gid) => {
     }
 
     const onColUpdate = useCallback((id, feedbacks) => {
-        const tempCols = gridCols; 
+        const tempCols = gridCols;
+        console.log(gridCols) 
         const col = tempCols.find(col => col.name === id)
         if(col) {
             setGridCols([...tempCols])

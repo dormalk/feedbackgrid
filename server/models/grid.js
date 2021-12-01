@@ -7,7 +7,7 @@ const gridSchema = new Schema({
     cols: [{
         name: { type: String, required: true },
         feedbacks: [{
-            cid: { type: String, required: true, unique: true },
+            cid: { type: String, required: true, unique: false },
             value: { type: String, required: true },
             createBy: { type: String, required: true },
             reactions: {
@@ -15,7 +15,8 @@ const gridSchema = new Schema({
                 celebrates: { type: Number, default: 0 },
                 dislikes: { type: Number, default: 0 },
                 evils: { type: Number, default: 0 },
-            }
+            },
+            votes: { type: Schema.Types.Mixed, default: {} },
         }]
     }]
 }, {
@@ -44,7 +45,6 @@ class GridManager {
         let grid = this.grids.find(grid => {
             return grid.gridId === gridId;
         });
-        console.log(!grid)
         if(!grid) {
             grid = {
                 gridId: gridId,
@@ -66,6 +66,7 @@ class GridManager {
                 newGrid.save()
                 .then(() => {})
                 .catch(err => {
+                    console.error(err)
                     const error = new HttpError('Could not create grid', 500);
                     throw error;
                 });
@@ -84,10 +85,9 @@ class GridManager {
             const error = new HttpError('Could not update grid', 500);
             throw error;
         }
-
         this.grids[gridIndex] = {
             ...this.grids[gridIndex],
-            ...gridData,
+            cols: [...gridData.cols]
         };
         Grid.findOneAndUpdate({gridId}, gridData, {new: false})
         .catch(err => {

@@ -34,6 +34,7 @@ const setGridById = (req, res, next) => {
     try{
         gridToUpdate = gridManager.updateGridById(gid, grid);
     }catch(err){
+        console.log(err)
         return next(err);
     }
 
