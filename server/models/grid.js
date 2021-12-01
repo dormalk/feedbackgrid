@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const HttpError = require('../models/http-errors');
-
+const { Mutex } = require('async-mutex'); 
 const gridSchema = new Schema({
     gridId: {type: String, required: true, unique: true},
     cols: [{
@@ -30,8 +30,10 @@ const gridSchema = new Schema({
 const Grid = mongoose.model('Grid', gridSchema);
 
 class GridManager {
+
     constructor(){
         this.grids = [];
+        this._lockes = {};
     }
 
     _initCol = (colName) => {
@@ -41,7 +43,7 @@ class GridManager {
         }
     }
 
-    getGridById = (gridId) => {
+    getGridById = async (gridId) => {
         let grid = this.grids.find(grid => {
             return grid.gridId === gridId;
         });
@@ -57,29 +59,33 @@ class GridManager {
             }
             this.grids.push(grid);
         }
-
-
-        Grid.findOne({gridId})
-        .then(gridDB => {
-            if(!gridDB) {
-                const newGrid = new Grid(grid);
-                newGrid.save()
-                .then(() => {})
-                .catch(err => {
-                    console.error(err)
-                    const error = new HttpError('Could not create grid', 500);
-                    throw error;
-                });
-            }
-        })
-        .catch(err => {
+        let gridDB;
+        try{
+            gridDB = await Grid.findOne({gridId})
+        }catch(err){
             const error = new HttpError('Could not find grid', 500);
             throw error; 
-        })
-        return grid;
+        }
+
+        if(!gridDB) {
+            try{
+                gridDB = new Grid(grid);
+                await gridDB.save()
+            }catch(err){
+                console.error(err)
+                const error = new HttpError('Could not create grid', 500);
+                throw error;
+            }
+     
+        }
+        return gridDB.toObject({getters: true});
     }
 
-    updateGridById = (gridId,gridData) => {
+    updateGridById = async (gridId,gridData) => {
+        if(!this._lockes[gridId]){
+            this._lockes[gridId] = new Mutex()
+        }
+        const release = await this._lockes[gridId].acquire();
         let gridIndex = this.grids.findIndex(grid => grid.gridId === gridId);
         if(gridIndex === -1) {
             const error = new HttpError('Could not update grid', 500);
@@ -87,14 +93,21 @@ class GridManager {
         }
         this.grids[gridIndex] = {
             ...this.grids[gridIndex],
-            cols: [...gridData.cols]
+            cols: [
+                ...this.grids[gridIndex].cols,
+                ...gridData.cols
+            ]
         };
-        Grid.findOneAndUpdate({gridId}, gridData, {new: false})
-        .catch(err => {
+        try{
+            await Grid.findOneAndUpdate({gridId}, gridData, {new: false})
+        }catch(err){
             console.log(err);
             const error = new HttpError('Could not update grid', 500);
             throw error;
-        })
+        } finally {
+            release();
+        }
+        
         return gridData;
 
     } 

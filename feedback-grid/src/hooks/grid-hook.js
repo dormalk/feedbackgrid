@@ -2,6 +2,9 @@ import {useState,useEffect,useCallback} from 'react';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import socketIOClient from "socket.io-client";
+import { getMyUid } from "../helpers/uid";
+const uid = getMyUid();
+
 const socket = socketIOClient(process.env.REACT_APP_BACKEND_URL);
 
 
@@ -19,10 +22,29 @@ const useGrid = (gid) => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}`)
         .then(res => res.json())
         .then(res => {
-            console.log(res.grid.cols);
-            setGridCols(res.grid.cols)
+            const updatedGrid = [
+                ...gridCols.map(col => {
+                    for(let key in col.votes){
+                        if(key === uid){
+                            delete col.votes[key];
+                        }
+                    }
+                    return col;
+                }),
+                ...res.grid.cols.map(col => {
+                    for(let key in col.votes){
+                        if(key !== uid){
+                            delete col.votes[key];
+                        }
+                    }
+                    return col;
+                })
+            ] 
+            console.log(updatedGrid)
+            setGridCols(updatedGrid)
         })
         .catch(err => {
+            console.log(err)
             if(mode === 'new') updateErrorMessage('We Could not fetch grid, please check you connection');
             else if(mode === 'join') navigate('/');
         })
@@ -63,7 +85,6 @@ const useGrid = (gid) => {
 
     const onColUpdate = useCallback((id, feedbacks) => {
         const tempCols = gridCols;
-        console.log(gridCols) 
         const col = tempCols.find(col => col.name === id)
         if(col) {
             setGridCols([...tempCols])

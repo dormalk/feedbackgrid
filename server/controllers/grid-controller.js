@@ -12,11 +12,11 @@ const checkGridExists = async(req, res, next) => {
     res.status(200).json({grid: grid.toObject({getters: true})});
 };
 
-const getGridById = (req, res, next) => {
+const getGridById = async (req, res, next) => {
     const gid = req.params.gid;
     let grid;
     try{
-        grid = gridManager.getGridById(gid);
+        grid = await gridManager.getGridById(gid);
     }catch(err){
         console.log(err)
         return next(err);
@@ -27,12 +27,12 @@ const getGridById = (req, res, next) => {
 
 }
 
-const setGridById = (req, res, next) => {
+const setGridById = async (req, res, next) => {
     const gid = req.params.gid;
     const {grid} = req.body;
     let gridToUpdate;
     try{
-        gridToUpdate = gridManager.updateGridById(gid, grid);
+        gridToUpdate = await gridManager.updateGridById(gid, grid);
     }catch(err){
         console.log(err)
         return next(err);
