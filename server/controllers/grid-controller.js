@@ -29,10 +29,10 @@ const getGridById = async (req, res, next) => {
 
 const setGridById = async (req, res, next) => {
     const gid = req.params.gid;
-    const {grid} = req.body;
+    const {grid,uid} = req.body;
     let gridToUpdate;
     try{
-        gridToUpdate = await gridManager.updateGridById(gid, grid);
+        gridToUpdate = await gridManager.updateGridById(gid, grid, uid);
     }catch(err){
         console.log(err)
         return next(err);

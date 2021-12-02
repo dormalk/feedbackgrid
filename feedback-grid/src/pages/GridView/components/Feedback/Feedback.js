@@ -1,15 +1,18 @@
 import React,{useCallback} from "react";
 import './Feedback.css'
 import Reactions from "../Reactions/Reactions";
-import { isRTL } from "../../../../helpers/text";
 import { getMyUid } from "../../../../helpers/uid";
-const uid = getMyUid();
+import { isRTL } from "../../../../helpers/text";
+
 const Feedback = ({value, reactions,votes,onReaction,createdBy, onDelete, opacityOnHightlight}) => {
-    console.log(reactions)
-    console.log(votes)
     const handleReaction = useCallback((reaction) => {
+        const uid = getMyUid();
+        console.log(votes)
+        if(votes === undefined) votes = {};
         const myVote = votes[uid];
+        console.log(myVote)
         if(!!myVote && myVote !== ''){
+            console.log('tet')
             reactions[myVote]--
         }
         votes[uid] = reaction;

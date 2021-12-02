@@ -43,6 +43,38 @@ class GridManager {
         }
     }
 
+    _updateCol = (colName,gridToUpdate,gridData,uid) => {
+        let currCol = gridToUpdate.cols.find(col => col.name === colName);
+        let updatedCol = gridData.cols.find(col => col.name === colName);
+        if(!!currCol && !!updatedCol){
+            let updatedFeedbacksArray = updatedCol.feedbacks;
+            let currFeedbacksArray = currCol.feedbacks;
+
+            for(let index in updatedFeedbacksArray){
+                let updatedFeedback = {
+                    votes: {}
+                };
+                if(!updatedFeedbacksArray[index] && !currFeedbacksArray[index]) updatedCol.feedbacks = updatedCol.feedbacks.splice(index,1);
+                if(!!currFeedbacksArray[index]) updatedFeedback = currFeedbacksArray[index];
+
+                for(let key in updatedFeedbacksArray[index]){
+                    if(key !== 'votes'){
+                        updatedFeedback[key] = updatedFeedbacksArray[index][key];
+                    }
+                }
+                for(let currUid in updatedFeedbacksArray[index].votes){
+                    if(currUid === uid){
+                        updatedFeedback.votes[currUid] = updatedFeedbacksArray[index].votes[currUid];
+                    } else if(currFeedbacksArray[index]){
+                        updatedFeedback.votes[currUid] = currFeedbacksArray[index].votes[currUid];
+                    }
+                }
+                updatedCol.feedbacks[index] = updatedFeedback;
+            }
+        }
+        return updatedCol;
+    }
+
     getGridById = async (gridId) => {
         let grid = this.grids.find(grid => {
             return grid.gridId === gridId;
@@ -81,25 +113,39 @@ class GridManager {
         return gridDB.toObject({getters: true});
     }
 
-    updateGridById = async (gridId,gridData) => {
+    updateGridById = async (gridId,gridData,uid) => {
         if(!this._lockes[gridId]){
             this._lockes[gridId] = new Mutex()
         }
         const release = await this._lockes[gridId].acquire();
         let gridIndex = this.grids.findIndex(grid => grid.gridId === gridId);
-        if(gridIndex === -1) {
-            const error = new HttpError('Could not update grid', 500);
-            throw error;
+
+        let gridToUpdate;
+        if(gridIndex !== -1){
+            gridToUpdate = this.grids[gridIndex];
         }
-        this.grids[gridIndex] = {
-            ...this.grids[gridIndex],
+        else if(gridIndex === -1) {
+            try{
+                const grid = await Grid.findOne({gridId})
+                gridToUpdate = grid.toObject({getters: true});
+                this.grids.push(gridToUpdate);
+            }catch(e){
+                const error = new HttpError('Could not update grid', 500);
+                throw error;
+            }
+        }
+
+        gridToUpdate = {
+            ...gridToUpdate,
             cols: [
-                ...this.grids[gridIndex].cols,
-                ...gridData.cols
+                this._updateCol('things_love',gridToUpdate,gridData,uid),
+                this._updateCol('things_dislike',gridToUpdate,gridData,uid),
+                this._updateCol('things_improve',gridToUpdate,gridData,uid),
+                this._updateCol('things_new',gridToUpdate,gridData,uid),
             ]
         };
         try{
-            await Grid.findOneAndUpdate({gridId}, gridData, {new: false})
+            await Grid.findOneAndUpdate({gridId}, gridToUpdate, {new: false, upsert: true, safe: true, useFindAndModify : false})
         }catch(err){
             console.log(err);
             const error = new HttpError('Could not update grid', 500);

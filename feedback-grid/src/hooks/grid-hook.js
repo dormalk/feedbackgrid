@@ -2,8 +2,7 @@ import {useState,useEffect,useCallback} from 'react';
 import { useLocation } from 'react-router';
 import { useNavigate } from 'react-router-dom';
 import socketIOClient from "socket.io-client";
-import { getMyUid } from "../helpers/uid";
-const uid = getMyUid();
+import {getMyUid} from '../helpers/uid';
 
 const socket = socketIOClient(process.env.REACT_APP_BACKEND_URL);
 
@@ -22,29 +21,9 @@ const useGrid = (gid) => {
         fetch(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}`)
         .then(res => res.json())
         .then(res => {
-            const updatedGrid = [
-                ...gridCols.map(col => {
-                    for(let key in col.votes){
-                        if(key === uid){
-                            delete col.votes[key];
-                        }
-                    }
-                    return col;
-                }),
-                ...res.grid.cols.map(col => {
-                    for(let key in col.votes){
-                        if(key !== uid){
-                            delete col.votes[key];
-                        }
-                    }
-                    return col;
-                })
-            ] 
-            console.log(updatedGrid)
-            setGridCols(updatedGrid)
+            setGridCols(res.grid.cols)
         })
         .catch(err => {
-            console.log(err)
             if(mode === 'new') updateErrorMessage('We Could not fetch grid, please check you connection');
             else if(mode === 'join') navigate('/');
         })
@@ -85,16 +64,19 @@ const useGrid = (gid) => {
 
     const onColUpdate = useCallback((id, feedbacks) => {
         const tempCols = gridCols;
-        const col = tempCols.find(col => col.name === id)
-        if(col) {
+        const colIndex = tempCols.findIndex(col => col.name === id)
+        if(colIndex !== -1) {
+            tempCols[colIndex].feedbacks = feedbacks;
             setGridCols([...tempCols])
-            col.feedbacks = feedbacks;
+            console.log(tempCols)
             fetch(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gridId}`, {
                 method: 'POST',
                 body: JSON.stringify({
                     grid: {
                         cols: tempCols
-                    }}),
+                    },
+                    uid: getMyUid()
+                }),
                 headers: {
                     'Content-Type': 'application/json'
                 }

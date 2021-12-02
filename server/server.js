@@ -75,4 +75,4 @@ app.use((err,req,res,next)=>{
 mongoose
     .connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.knvy7.mongodb.net/${process.env.DB_NAME_DEV}?retryWrites=true&w=majority`)
     .then(() => server.listen(process.env.PORT || 5000))
-    .catch(() => console.log('Could not connect to database'))
+    .catch((err) => console.log(err))
