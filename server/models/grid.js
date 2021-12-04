@@ -2,6 +2,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const HttpError = require('../models/http-errors');
 const { Mutex } = require('async-mutex'); 
+const RELEASE_TIMEOUT = process.env.RELEASE_TIMEOUT || 3000;
+const util = require('util');
+
+
+log = message => { 
+    console.log(util.inspect(message, false, null, true /* enable colors */))
+}
+
 const gridSchema = new Schema({
     gridId: {type: String, required: true, unique: true},
     cols: [{
@@ -36,6 +44,8 @@ class GridManager {
         this._lockes = {};
     }
 
+    _
+
     _initCol = (colName) => {
         return {
             name: colName,
@@ -43,42 +53,16 @@ class GridManager {
         }
     }
 
-    _updateCol = (colName,gridToUpdate,gridData,uid) => {
-        let currCol = gridToUpdate.cols.find(col => col.name === colName);
-        let updatedCol = gridData.cols.find(col => col.name === colName);
-        if(!!currCol && !!updatedCol){
-            let updatedFeedbacksArray = updatedCol.feedbacks;
-            let currFeedbacksArray = currCol.feedbacks;
-
-            for(let index in updatedFeedbacksArray){
-                let updatedFeedback = {
-                    votes: {}
-                };
-                if(!updatedFeedbacksArray[index] && !currFeedbacksArray[index]) updatedCol.feedbacks = updatedCol.feedbacks.splice(index,1);
-                if(!!currFeedbacksArray[index]) updatedFeedback = currFeedbacksArray[index];
-
-                for(let key in updatedFeedbacksArray[index]){
-                    if(key !== 'votes'){
-                        updatedFeedback[key] = updatedFeedbacksArray[index][key];
-                    }
-                }
-                for(let currUid in updatedFeedbacksArray[index].votes){
-                    if(currUid === uid){
-                        updatedFeedback.votes[currUid] = updatedFeedbacksArray[index].votes[currUid];
-                    } else if(currFeedbacksArray[index]){
-                        updatedFeedback.votes[currUid] = currFeedbacksArray[index].votes[currUid];
-                    }
-                }
-                updatedCol.feedbacks[index] = updatedFeedback;
-            }
-        }
-        return updatedCol;
-    }
-
     getGridById = async (gridId) => {
-        let grid = this.grids.find(grid => {
-            return grid.gridId === gridId;
-        });
+        if(!this._lockes[gridId]){
+            console.log('getGridById | create Mutex')
+            this._lockes[gridId] = new Mutex()
+        }
+        console.log('Start Get Grid')
+        const release = await this._lockes[gridId].acquire();
+        if(RELEASE_TIMEOUT != 0) setTimeout(() => release(), RELEASE_TIMEOUT)
+
+        let grid = this.grids.find(grid => grid.gridId === gridId);
         if(!grid) {
             grid = {
                 gridId: gridId,
@@ -95,6 +79,7 @@ class GridManager {
         try{
             gridDB = await Grid.findOne({gridId})
         }catch(err){
+            release();
             const error = new HttpError('Could not find grid', 500);
             throw error; 
         }
@@ -108,44 +93,81 @@ class GridManager {
                 const error = new HttpError('Could not create grid', 500);
                 throw error;
             }
+            finally{
+                release();
+            }
      
-        }
+        }else release();
+        console.log('End Get Grid')
+
         return gridDB.toObject({getters: true});
     }
 
     updateGridById = async (gridId,gridData,uid) => {
+        //start update
+        console.log('Start Update');
         if(!this._lockes[gridId]){
+            console.log('updateGridById | create Mutex')
             this._lockes[gridId] = new Mutex()
         }
+
         const release = await this._lockes[gridId].acquire();
-        let gridIndex = this.grids.findIndex(grid => grid.gridId === gridId);
+        if(RELEASE_TIMEOUT != 0) setTimeout(() => release(), RELEASE_TIMEOUT)
 
-        let gridToUpdate;
-        if(gridIndex !== -1){
-            gridToUpdate = this.grids[gridIndex];
-        }
-        else if(gridIndex === -1) {
+        let currGrid;
+        let currGridIndex = this.grids.findIndex(grid => grid.gridId === gridId);
+        if(currGridIndex === -1) {
             try{
-                const grid = await Grid.findOne({gridId})
-                gridToUpdate = grid.toObject({getters: true});
-                this.grids.push(gridToUpdate);
-            }catch(e){
-                const error = new HttpError('Could not update grid', 500);
-                throw error;
+                const tempGrid = await Grid.findOne({gridId})
+                currGrid = tempGrid.toObject({getters: true});
+                this.grids.push(currGrid);
+                currGridIndex = this.grids.length - 1;
+            }catch(err){
+                release();
+                const error = new HttpError('Could not find grid', 500);
+                throw error; 
             }
+        } else {
+            currGrid = this.grids[currGridIndex];
         }
 
-        gridToUpdate = {
-            ...gridToUpdate,
-            cols: [
-                this._updateCol('things_love',gridToUpdate,gridData,uid),
-                this._updateCol('things_dislike',gridToUpdate,gridData,uid),
-                this._updateCol('things_improve',gridToUpdate,gridData,uid),
-                this._updateCol('things_new',gridToUpdate,gridData,uid),
-            ]
-        };
+        console.log('Before Update Grid')
+        log(gridData.cols);
+        gridData.cols.forEach(col => {
+            col.feedbacks.forEach(feedback => {
+                //I need to revert all votes that not realted to uid
+                const tempVotes = feedback.votes ? feedback.votes : {}; //the updated voteList
+                const tempReactions = feedback.reactions; //the updated reactions
+                // console.log('tempVotes',tempVotes)
+                //get all feedbacks of current col state, and update the voteList
+                const currFeedbacksArray = currGrid.cols.find(col => col.name === col.name).feedbacks;
+                // console.log('currFeedbacks => ')
+                // log(currFeedbacks)
+
+                const currFeedback = currFeedbacksArray.find(currfeedback => currfeedback.cid === feedback.cid);
+                if(currFeedback) {
+                    feedback.votes = currFeedback.votes;
+                    feedback.reactions = currFeedback.reactions;
+                }
+                //update the feedback if there is any change
+                if(!feedback.votes) feedback.votes = {};
+                if(tempVotes[uid] && tempVotes[uid] != feedback.votes[uid]) {
+                    //decrease the old reaction
+                    if(feedback.votes[uid]) {
+                        feedback.reactions[feedback.votes[uid]] = currFeedback.reactions[feedback.votes[uid]] - 1;
+                    }
+                    //update the new vote
+                    feedback.votes[uid] = tempVotes[uid];
+                    //increase the new reaction
+                    feedback.reactions[tempVotes[uid]] = currFeedback.reactions[tempVotes[uid]] + 1;
+                }
+            })
+        });
+        this.grids[currGridIndex].cols = gridData.cols;
+        console.log('After Update Grid')
+        log(gridData.cols)
         try{
-            await Grid.findOneAndUpdate({gridId}, gridToUpdate, {new: false, upsert: true, safe: true, useFindAndModify : false})
+            await Grid.findOneAndUpdate({gridId}, gridData, {new: false, safe: true, useFindAndModify: false});
         }catch(err){
             console.log(err);
             const error = new HttpError('Could not update grid', 500);
@@ -153,7 +175,7 @@ class GridManager {
         } finally {
             release();
         }
-        
+        console.log('Finish update');
         return gridData;
 
     } 
