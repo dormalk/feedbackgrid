@@ -93,6 +93,7 @@ const createNewFeedback = async (req, res, next) => {
 const deleteFeedbackById = async (req, res, next) => {
     const {gid,fid} = req.params;
     const {uid,colName} = req.body;
+    console.log(uid,colName)
     let grid;
     try{
         grid = await Grid.findOne({gridId: gid});

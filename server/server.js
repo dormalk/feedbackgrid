@@ -37,9 +37,11 @@ io.on('connection', socket => {
     })
 
     socket.on('updateRequest', () => {
+        console.log('get update request');
         var user = users.getUser(socket.id);
+        console.log(user);
         if(user){
-            socket.broadcast.to(user.room).emit('updateTable');
+            io.to(user.room).emit('updateTable');
         }
     })
 

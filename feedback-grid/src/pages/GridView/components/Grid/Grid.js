@@ -1,10 +1,9 @@
 import React,{useRef, useCallback} from "react";
 import Col from "../Col/Col";
 import './Grid.css'
-import { ErrorSnack } from "../../../../shared/components";
 
 
-const ColsData = [
+const COLS_DATA = [
     {
         title: "Things I Loves",
         icon: "heart",
@@ -29,7 +28,7 @@ const ColsData = [
 
 const DELTEA = window.innerWidth / 2;
 
-const Grid = ({isLoading, findCol, onColUpdate,errorMessage,userCounter}) => {
+const Grid = ({userCounter, gridData = []}) => {
     const gridRef = useRef(null);
     
     const handleEndTouch = useCallback(event => {
@@ -50,26 +49,33 @@ const Grid = ({isLoading, findCol, onColUpdate,errorMessage,userCounter}) => {
         }
 
     },[])
+    
     React.useEffect(() => {
         gridRef.current.addEventListener("touchend", handleEndTouch)
         gridRef.current.scrollLeft = 0;
     },[handleEndTouch])
 
+    const getColFeedbacksByName = useCallback((name) => {
+        if(!gridData) return [];
+        const col = gridData.find(col => col.name === name)
+        if(col) return col.feedbacks;
+        return []
+    },[gridData])
+
     return <React.Fragment>
         <div className="grid" ref={gridRef}>
-        {isLoading ?    <div className="loader"></div> :
-                            ColsData.map((col,index) => <Col    key={col.id}
-                                                                title={col.title}
-                                                                icon={col.icon}
-                                                                userCounter={userCounter}
-                                                                style={ index === 0 ? 
-                                                                        styles.colFirst : 
-                                                                        index === ColsData.length - 1 ? 
-                                                                        styles.colLast : styles.col}
-                                                                onUpdate={(feedbacks) => onColUpdate(col.id,feedbacks)}
-                                                                feedbacks={findCol(col.id)}/>)}
+            {
+                COLS_DATA.map((col,index) => <Col   key={col.id}
+                                                    title={col.title}
+                                                    icon={col.icon}
+                                                    colId={col.id}
+                                                    userCounter={userCounter}
+                                                    style={ index === 0 ? 
+                                                            styles.colFirst : 
+                                                            index === COLS_DATA.length - 1 ? 
+                                                            styles.colLast : styles.col}
+                                                    feedbacks={getColFeedbacksByName(col.id)}/>)}
         </div>
-        <ErrorSnack error={errorMessage}/>
         </React.Fragment>
 };
 

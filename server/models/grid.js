@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const gridSchema = new Schema({
     gridId: {type: String, required: true, unique: true},
     cols: [{
-        name: { type: String, required: true },
+        name: { type: String, required: true, unique: true },
         feedbacks: [{
             feedbackId: { type: String, required: true, unique: false },
             value: { type: String, required: true },
