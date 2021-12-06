@@ -1,17 +1,13 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback } from "react";
 import socket from '../helpers/socket';
 
 export const useHttpClient = () => {
     const [isLoading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const activeHttpRequests = useRef([]);
-
     const sendRequest = useCallback(async (url, method = "GET", headers = {}, body = null, {withUpdate} = {withUpdate:false}) => {
         if(isLoading) return;
         setLoading(true);
-        const httpAbortCtrl = new AbortController();
-        activeHttpRequests.current.push(httpAbortCtrl);
         try {
             const response = await fetch(url, {
                 method,
@@ -20,10 +16,8 @@ export const useHttpClient = () => {
                     ...headers,
                     'Content-Type': 'application/json'
                 },
-                signal: httpAbortCtrl.signal
             });
             const data = await response.json();
-            activeHttpRequests.current.filter(reqCtrl => reqCtrl !== httpAbortCtrl);
             if(!response.ok) {
                 throw new Error(data.message);
             }
@@ -41,19 +35,13 @@ export const useHttpClient = () => {
             setError(err.message || "Something went wrong");
             throw err;
         }
-    },[activeHttpRequests,isLoading])
+    },[isLoading])
 
     const clearError = () => {
         setError(null);
     }
 
-    useEffect(() => {
-
-        return () =>{
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            if(activeHttpRequests) activeHttpRequests.current.forEach(abortCtrl => abortCtrl.abort());
-        }
-    },[])
+    
 
     return { isLoading, error, sendRequest,clearError };
 }
