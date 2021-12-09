@@ -1,21 +1,22 @@
-import React,{useState,useCallback} from 'react';
+import React,{useState} from 'react';
 import Header from '../../shared/components/Header/Header.js';
 import Grid from './components/Grid/Grid.js';
 import { useParams } from "react-router";
 import './GridView.css'
 import {useHttpClient} from '../../hooks/http-hook';
-import socket from '../../helpers/socket';
+import socket,{disconnect as socketDisconnect, reconnect as socketReconnect} from '../../helpers/socket';
 import ErrorSnack from '../../shared/components/ErrorSnack/ErrorSnack.js';
 import { useNavigate } from 'react-router-dom';
 
+let isInitialMount = false;
 
 const GridView = () => {
     const { gid } = useParams();
-    const [initialized, setInitialized] = useState(false);
+    const navigate = useNavigate();
+
     const [visited, setVisited] = useState(true);
     const [connectedUsersCounter, setConnectedUsersCounter] = useState(0);
     const [gridData, setGridData] = useState([]);
-    const navigate = useNavigate();
     const { error, sendRequest } = useHttpClient();
 
     
@@ -24,31 +25,37 @@ const GridView = () => {
         localStorage.setItem('visited', true);
     }
 
-    const getGridById = useCallback(async () => {
-        try {
-            const responseData = await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}`);
-            setGridData(responseData.grid.cols);
-        } catch (err) {
-            navigate('/');
-        }
-    },[gid,sendRequest,navigate])
-
     React.useEffect(() => {
+        const getGridById = async () => {
+            try {
+                const responseData = await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}`);
+                if(responseData){
+                    setGridData(responseData.grid.cols);
+                }
+                    
+            } catch (err) {
+                navigate('/');
+            }
+        }
+        if(!isInitialMount){
+            getGridById();
+            isInitialMount = true;
+        }
+        socket.emit('join', {room: gid});
+        socket.off("updateTable")
+        socket.off("usersCount")
+        socket.on("updateTable", _ => getGridById());
+        socket.on("usersCount", count => setConnectedUsersCounter(count));
+    },[gid, sendRequest, navigate]);
+    
+    React.useEffect( () => {
         const visited = localStorage.getItem('visited');
         setVisited(visited);
-        socket.emit('join', {room: gid});
-            
+        socketReconnect();
+    },[]);
 
-        if(gid && !initialized){
-            getGridById();
+    React.useEffect( () => () => socketDisconnect(), [] );
 
-            socket.on("updateTable", _ => getGridById());
-
-            socket.on("usersCount", count => setConnectedUsersCounter(count));
-
-            setInitialized(true);
-        }
-    },[gid,getGridById, initialized])
 
     return <React.Fragment>
             <Header userCounter={connectedUsersCounter}/>

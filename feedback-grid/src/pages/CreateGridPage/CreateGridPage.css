@@ -51,8 +51,13 @@
 .btn.start{
     background-color: var(--dark-purple);
     color: #fff;
+    cursor: pointer;
 }
-
+.sponser{
+    font-family: Roboto-Regular;
+    position: absolute;
+    bottom: 0;
+}
 
 .btn.join{
     background-color: var(--dark-blue);
