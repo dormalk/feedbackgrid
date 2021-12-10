@@ -60,26 +60,34 @@ const Col = ({title,icon,feedbacks = [], style={}, userCounter, colId}) => {
     },[colId,gid,sendRequest])
 
     const deleteFeedbackById = useCallback(async(feedbackId) => {
-        await sendRequest(
-            `${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}/feedback/${feedbackId}`,
-            'DELETE',
-            undefined,
-            {
-                colName: colId,
-                uid: getMyUid()
-            }, {withUpdate: true})
+        try{
+            await sendRequest(
+                `${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}/feedback/${feedbackId}`,
+                'DELETE',
+                undefined,
+                {
+                    colName: colId,
+                    uid: getMyUid()
+                }, {withUpdate: true})
+        }catch(err){
+            console.error(err);
+        }
     },[colId,gid,sendRequest])
 
     const onFeedbackVote = useCallback(async(feedbackId, reaction) => {
-        await sendRequest(
-            `${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}/feedback/${feedbackId}`,
-            'PATCH',
-            undefined,
-            {
-                colName: colId,
-                uid: getMyUid(),
-                reaction
-            }, {withUpdate: true})
+        try{
+            await sendRequest(
+                `${process.env.REACT_APP_BACKEND_URL}/api/grid/${gid}/feedback/${feedbackId}`,
+                'PATCH',
+                undefined,
+                {
+                    colName: colId,
+                    uid: getMyUid(),
+                    reaction
+                }, {withUpdate: true})
+        }catch(err){
+            console.error(err);
+        }
     },[colId,gid,sendRequest])
 
 
