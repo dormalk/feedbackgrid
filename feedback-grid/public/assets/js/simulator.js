@@ -94,3 +94,12 @@ async function runSimulator(){
 function stopSimulator(){
   breakSimulate = true;
 }
+
+
+window.addEventListener('play-simulator', () => {
+  runSimulator();
+})
+
+window.addEventListener('stop-simulator', () => {
+  stopSimulator();
+})

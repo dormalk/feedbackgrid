@@ -23,7 +23,22 @@ header .share-btn {
 
 header .share-btn > img{
     height: 1.3rem;
+}
+header .simulate-btn {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+header .simulate-btn > img{
+    height: 1rem;
+    margin-right: 0.5rem;
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
 
+header .simulate-btn:hover img{
+    opacity: 1;
+    transform: scale(1.2);
 }
 
 header .room,
